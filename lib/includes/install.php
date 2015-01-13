@@ -166,7 +166,7 @@ function epl_plugin_updates() {
 		update_option( 'epl_version' ,$current_version);
 	}
 }
-add_action( 'admin_init', 'epl_plugin_updates' );
+// add_action( 'admin_init', 'epl_plugin_updates' );
 
 
 
