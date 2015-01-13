@@ -5,7 +5,7 @@
  * Description:  The complete real estate platform for today's agent to list property using any theme for WordPress fast, easy and free. Just enable the listing types you need add some properties, tweak your settings and you're done. Extend the core with cool dynamic add-on extensions that give your visitors more reasons to come back.
  * Author: Merv Barrett
  * Author URI: http://www.realestateconnected.com.au
- * Version: 1.3 (dev Beta 5)
+ * Version: 1.3
  * Text Domain: epl
  * Domain Path: languages
  *
@@ -115,7 +115,9 @@ if ( ! class_exists( 'Easy_Property_Listings' ) ) :
 			if ( ! defined( 'EPL_PATH_LIB' ) ) {
 				define( 'EPL_PATH_LIB', EPL_PLUGIN_PATH . 'lib/' );
 			}
-			
+			if ( ! defined( 'EPL_PATH_UPDATES' ) ) {
+				define( 'EPL_PATH_UPDATES', EPL_PATH_LIB . 'updates/' );
+			}
 			if ( ! defined( 'EPL_PATH_TEMPLATES' ) ) {
 				define( 'EPL_PATH_TEMPLATES', EPL_PATH_LIB . 'templates/' );
 			}

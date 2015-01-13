@@ -32,9 +32,9 @@ function epl_load_core_templates($template) {
 	} elseif ( is_post_type_archive( $epl_posts ) ) {
 		$common_tpl		= 'archive-listing.php';
 		$post_tpl 		= 'archive-'.get_post_type().'.php';
-		$find[] 		=  $post_tpl;
+		$find[] 		= $post_tpl;
 		$find[] 		= epl_template_path() . $post_tpl;
-		$find[] 		=  $common_tpl;
+		$find[] 		= $common_tpl;
 		$find[] 		= epl_template_path() . $common_tpl;
 		
 	} elseif ( is_tax ( 'location' ) ) {
@@ -58,7 +58,6 @@ function epl_load_core_templates($template) {
 			$template	=	$template_path . $common_tpl;
 		}
 	}
-	
 	return $template;
 
 }
