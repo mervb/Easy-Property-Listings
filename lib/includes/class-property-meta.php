@@ -706,7 +706,7 @@ class EPL_Property_Meta {
 						return '<li class="'.$this->get_class_from_metakey($metakey).'">'.__($this->get_label_from_metakey($metakey), 'epl').'</li>';
 					} elseif(is_numeric($metavalue)) {
 						// numbered field types 
-						return '<li class="'.$this->get_class_from_metakey($metakey).'">'.$metavalue.' '.__($this->get_label_from_metakey($metakey), 'epl').'</li>';
+						return '<li class="'.$this->get_class_from_metakey($metakey).'">'.__($metavalue,'epl').' '.__($this->get_label_from_metakey($metakey), 'epl').'</li>';
 					} else {
 						// others
 						return '<li class="'.$this->get_class_from_metakey($metakey).'">'.__($metavalue,'epl').'</li>';
