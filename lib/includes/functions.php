@@ -663,6 +663,7 @@ function epl_admin_sidebar () {
 				foreach($field['opts'] as $k=>$v) {
 					$checked = '';
 					if(!empty($val)) {
+						$val = (array) $val;
 						if( in_array($k, $val) ) {
 							$checked = 'checked="checked"';
 						}
