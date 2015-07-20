@@ -227,6 +227,33 @@ function epl_currency_formatted_amount($price) {
 		return epl_currency_filter( epl_format_amount( $price , false ) );
 		
 }
+
+function epl_labels($key) {
+	global $epl_settings;
+	$field_groups = epl_get_admin_option_fields();
+	
+	foreach($field_groups as $field_group) {
+		if($field_group['id']	==	'labels') {
+			$epl_labels = array_filter($field_group['fields']);
+			break;
+		}
+	}
+	
+	foreach($epl_labels as $label_key	=>	$label) {
+	
+		if( isset($label['default']) && $key == $label['name'] ) {
+			
+			$label =  isset($epl_settings[$key]) ? $epl_settings[$key] : isset($label['default']) ? $label['default'] : '';
+			
+			return apply_filters( 'epl_display_'.$key, $label );
+		}
+	}
+	
+}
+
+/**
+ * @depricated since 2.2. use epl_labels instead
+ */
 function epl_display_label_suburb( ) {
 	$epl_display_label_suburb = '';
 	
@@ -236,6 +263,10 @@ function epl_display_label_suburb( ) {
 	}
 	return apply_filters( 'epl_display_label_suburb', $epl_display_label_suburb );
 }
+/**
+ * @depricated since 2.2. use epl_labels instead
+ */
+
 function epl_display_label_bond( ) {
 	$epl_display_label_bond = '';
 	
@@ -245,6 +276,9 @@ function epl_display_label_bond( ) {
 	}
 	return apply_filters( 'epl_display_label_bond', $epl_display_label_bond );
 }
+/**
+ * @depricated since 2.2. use epl_labels instead
+ */
 function epl_display_label_postcode() {
 	$epl_display_label_postcode = '';
 	
@@ -549,11 +583,15 @@ function epl_feedsync_format_sub_number( $sub_value ) {
 }
 
 /**
- * Offers presented on settings page
+ * Offers presented on settings page, removed if extension is present and activated
  *
  * @since 2.0
  */
 function epl_admin_sidebar () {
+
+	if ( has_filter( 'epl_extensions_options_filter_new' ) ) 
+		return;
+		
 	$service_banners = array(
 		array(
 			'url' => 'http://easypropertylistings.com.au/extensions/developer-license/',
@@ -664,6 +702,7 @@ function epl_admin_sidebar () {
 					$checked = '';
 					if(!empty($val)) {
 						if( in_array($k, $val) ) {
+							$val = (array) $val;
 							$checked = 'checked="checked"';
 						}
 					}
@@ -699,6 +738,7 @@ function epl_admin_sidebar () {
 			break;
 
 		case 'image':
+		case 'file':
 			if($val != '') {
 				$img = $val;
 			} else {
@@ -707,9 +747,13 @@ function epl_admin_sidebar () {
 			echo '
 				<div class="epl-media-row">
 					<input type="text" name="'.$field['name'].'" id="'.$field['name'].'" value="'.stripslashes($val).'" />
-					&nbsp;&nbsp;<input type="button" name="epl_upload_button" class="button" value="'.__('Add File', 'epl').'" />
-					&nbsp;&nbsp;<img src="'.$img.'" alt="" />
-					<div class="epl-clear"></div>
+					&nbsp;&nbsp;<input type="button" name="epl_upload_button" class="button" value="'.__('Add File', 'epl').'" />';
+					
+					if( in_array( pathinfo($img, PATHINFO_EXTENSION), array('jpg','jpeg','png','gif') ) ) {
+						echo '&nbsp;&nbsp;<img src="'.$img.'" alt="" />';
+					}
+			echo		
+					'<div class="epl-clear"></div>
 				</div>
 			';
 			break;
@@ -765,6 +809,15 @@ function epl_admin_sidebar () {
 		case 'url':
 			echo '<input type="text" name="'.$field['name'].'" id="'.$field['name'].'" value="'.stripslashes($val).'" class="validate[custom[url]]" />';
 			break;
+		case 'locked':
+			$atts = '';
+			echo '<span>'.stripslashes($val).'</span>';
+			break;
+		case 'help':
+			echo '<div class="epl-help-container" id="'.isset($field['name']) ? $field['name'] : ''.'">
+					'.isset($field['content']) ? $field['content'] : ''.'
+				</div>';
+			break;
 		
 		default:
 			$atts = '';
@@ -794,6 +847,7 @@ function epl_admin_sidebar () {
  }
  
  function epl_get_admin_option_fields() {
+ 	global $epl_settings;
 	$opts_epl_gallery_n = array();
 	for($i=1; $i<=10; $i++) {
 		$opts_epl_gallery_n[$i] = $i;
@@ -841,12 +895,6 @@ function epl_admin_sidebar () {
 				),
 				
 				array(
-					'name'	=>	'label_location',
-					'label'	=>	__('Location Taxonomy', 'epl'),
-					'type'	=>	'text'
-				),
-				
-				array(
 					'name'	=>	'sticker_new_range',
 					'label'	=>	__('Keep Listings flagged "New" for', 'epl'),
 					'type'	=>	'number',
@@ -890,8 +938,9 @@ function epl_admin_sidebar () {
 						'epl-image-medium-crop'	=>	__('300 X 200', 'epl'),
 					),
 					'default'	=>	'admin-list-thumb',
-					'help'		=>	__('size of the image shown in listing columns in admin area' , 'epl')
-				)
+					'help'		=>	__('Size of the image shown in listing columns in admin area' , 'epl')
+				),
+				
 			)
 		),
 		
@@ -926,6 +975,71 @@ function epl_admin_sidebar () {
 					'type'	=>	'text'
 				)
 			)
+		),
+		
+		array(
+			'label'		=>	__('Theme Setup' , 'epl'),
+			'class'		=>	'core',
+			'id'		=>	'theme_setup',
+			'fields'	=>	array(
+				array(
+					'name'	=>	'epl_feeling_lucky_help',
+					'type'	=>	'help',
+					'content'		=>	__('Adapt to theme framework which will improve sidebar position however removes sorting and grid options which can be added through shortcodes like [listing post_type="property" tools_top="on"]. If using iThemes, Genesis frameworks or Twenty Twelve and Twenty Fifteen based themes leave un-checked.' , 'epl')
+					
+				),array(
+					'name'	=>	'epl_feeling_lucky',
+					'label'	=>	__('Enable Theme Compatibility', 'epl'),
+					'type'	=>	'checkbox_single',
+					'opts'	=>	array(
+						'on'	=>	__('Yes', 'epl'),
+					),
+					'default'	=>	'off',
+					'help'		=>	__('Adapt to theme framework which will improve sidebar position however removes sorting and grid options which can be added through shortcodes like [listing post_type="property" tools_top="on"]. If using iThemes, Genesis frameworks or Twenty Twelve and Twenty Fifteen based themes leave un-checked.' , 'epl')
+					
+				),
+				array(
+					'name'	=>	'epl_lucky_disable_single_thumb',
+					'label'	=>	__('Single Listing: Disable Epl featured image', 'epl'),
+					'type'	=>	'checkbox_single',
+					'opts'	=>	array(
+						'on'	=>	__('Yes', 'epl'),
+					),
+					'default'	=>	'off',
+					'help'		=>	__('Tick this if your theme displays two images on a listing. Used with theme compatibility mode only.removes featured image from EPL' , 'epl')
+				),
+				array(
+					'name'	=>	'epl_lucky_disable_theme_single_thumb',
+					'label'	=>	__('Single Listing: Disable featured image', 'epl'),
+					'type'	=>	'checkbox_single',
+					'opts'	=>	array(
+						'on'	=>	__('Yes', 'epl'),
+					),
+					'default'	=>	'off',
+					'help'		=>	__('Tick this if your theme displays two images on a listing. Used with theme compatibility mode only.removes featured image from active theme' , 'epl')
+				),
+				array(
+					'name'	=>	'epl_lucky_disable_archive_thumb',
+					'label'	=>	__('Archive: Disable featured image', 'epl'),
+					'type'	=>	'checkbox_single',
+					'opts'	=>	array(
+						'on'	=>	__('Yes', 'epl'),
+					),
+					'default'	=>	'off',
+					'help'		=>	__('Tick this if your theme displays two images on archive pages. Used with theme compatibility mode only.' , 'epl')
+				),
+				array(
+					'name'	=>	'epl_lucky_disable_epl_archive_thumb',
+					'label'	=>	__('Archive: Disable EPL featured image', 'epl'),
+					'type'	=>	'checkbox_single',
+					'opts'	=>	array(
+						'on'	=>	__('Yes', 'epl'),
+					),
+					'default'	=>	'off',
+					'help'		=>	__('Tick this if your theme displays two images on archive pages. Used with theme compatibility mode only.' , 'epl')
+				)
+			)
+
 		),
 		
 		array(
@@ -982,7 +1096,8 @@ function epl_admin_sidebar () {
 					'opts'	=>	array(
 						'list'	=>	__('List', 'epl'),
 						'grid'	=>	__('Grid', 'epl')
-					)
+					),
+					'default'	=>	'list',
 				),
 				
 				array(
@@ -992,7 +1107,8 @@ function epl_admin_sidebar () {
 					'opts'	=>	array(
 						'0'		=>	__('No, use WordPress default pagination', 'epl'),
 						'1'		=>	__('Yes, use fancy navigation', 'epl')
-					)
+					),
+					'default'	=>	'0',
 				)
 
 			)
@@ -1003,6 +1119,38 @@ function epl_admin_sidebar () {
 			'class'		=>	'core',
 			'id'		=>	'labels',
 			'fields'	=>	array(
+
+				array(
+					'name'	=>	'epl_enable_city_field',
+					'label'	=>	__('Enable City Field', 'epl'),
+					'type'	=>	'radio',
+					'opts'	=>	array(
+						'no'	=>	__('No', 'epl'),
+						'yes'	=>	__('Yes', 'epl'),
+					),
+					'default'	=>	'no',
+					'help'		=>	__('helpful in case listings have seperate city & suburb area' , 'epl')
+				),
+
+				array(
+					'name'	=>	'epl_enable_country_field',
+					'label'	=>	__('Enable Country Field', 'epl'),
+					'type'	=>	'radio',
+					'opts'	=>	array(
+						'no'	=>	__('No', 'epl'),
+						'yes'	=>	__('Yes', 'epl'),
+					),
+					'default'	=>	'no',
+					'help'		=>	__('use country field for listing addresses' , 'epl')
+				),
+
+				array(
+					'name'	=>	'label_location',
+					'label'	=>	__('Location Taxonomy', 'epl'),
+					'type'	=>	'text',
+					'help'	=>	__('After changing this setting visit Dashboard > Settings > Permalinks to save the settings.', 'epl'),
+					'default'	=>	'Location'
+				),
 
 				array(
 					'name'		=>	'label_bond',
@@ -1018,6 +1166,14 @@ function epl_admin_sidebar () {
 					'default'	=>	'Suburb',
 
 				),
+				( isset($epl_settings['epl_enable_city_field'] ) &&  $epl_settings['epl_enable_city_field'] == 'yes' ) ?
+				array(
+					'name'		=>	'label_city',
+					'label'		=>	__('City (default: City)', 'epl'),
+					'type'		=>	'text',
+					'default'	=>	'City',
+
+				) : array() ,
 
 				array(
 					'name'		=>	'label_postcode',
@@ -1071,8 +1227,6 @@ function epl_admin_sidebar () {
 					'default'	=>	'Sold',
 
 				)
-
-
 			)
 		),
 		
@@ -1176,7 +1330,6 @@ function epl_admin_sidebar () {
 					
 				)
 			)
-
 		)
 	);
 	
@@ -1191,6 +1344,7 @@ function epl_admin_sidebar () {
  */
 function epl_sold_label_status_filter_callback() {
 	global $epl_settings;
+	$epl_settings['label_sold'] = !isset($epl_settings['label_sold']) ? '' : $epl_settings['label_sold'];
 	$sold_label	= $epl_settings['label_sold'] != 'Sold' || $epl_settings['label_sold'] != '' ? $epl_settings['label_sold'] : __('Sold' , 'epl');
 	return $sold_label;
 }
@@ -1203,6 +1357,7 @@ add_filter('epl_sold_label_status_filter', 'epl_sold_label_status_filter_callbac
  */
 function epl_under_offer_label_status_filter_callback() {
 	global $epl_settings;
+	$epl_settings['label_under_offer'] = !isset($epl_settings['label_under_offer']) ? '' : $epl_settings['label_under_offer'];
 	$under_offer_label	= $epl_settings['label_under_offer'] != 'Under Offer' || $epl_settings['label_under_offer'] != '' ? $epl_settings['label_under_offer'] : __('Under Offer' , 'epl');
 	return $under_offer_label;
 }
@@ -1215,7 +1370,42 @@ add_filter('epl_under_offer_label_status_filter', 'epl_under_offer_label_status_
  */
 function epl_leased_label_status_filter_callback() {
 	global $epl_settings;
+	$epl_settings['label_leased'] = !isset($epl_settings['label_leased']) ? '' : $epl_settings['label_leased'];
 	$leased_label	= $epl_settings['label_leased'] != 'Leased' || $epl_settings['label_leased'] != '' ? $epl_settings['label_leased'] : __('Leased' , 'epl');
 	return $leased_label;
 }
 add_filter('epl_leased_label_status_filter', 'epl_leased_label_status_filter_callback' );
+
+/**
+* Description: Getting all the values associated with a specific custom post meta key, across all posts
+* Author: Chinmoy Paul
+* Author URL: http://pwdtechnology.com
+*
+* @param string $key Post Meta Key.
+*
+* @param string $type Post Type. Default is post. You can pass custom post type here.
+*
+* @param string $status Post Status like Publish, draft, future etc. default is publish
+*
+* @return array
+*/
+ 
+ function epl_get_unique_post_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
+
+    global $wpdb;
+
+    if( empty( $key ) )
+        return;
+
+    $res = $wpdb->get_col( $wpdb->prepare( "
+SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
+LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+WHERE pm.meta_key = '%s'
+AND p.post_status = '%s'
+AND p.post_type = '%s'
+", $key, $status, $type ) );
+
+	$res = array_filter($res);
+	if(!empty($res))
+    	return array_combine(array_filter($res),array_filter($res) );
+}
