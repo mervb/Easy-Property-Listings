@@ -25,12 +25,6 @@ function epl_image_sizes() {
 		'epl_image_sizes',
 		array(
 			array(
-				'id'			=>	'admin-list-thumb',
-				'height'		=>	100,
-				'width'			=>	100,
-				'crop'			=>	true
-			),
-			array(
 				'id'			=>	'epl-image-medium-crop',
 				'height'		=>	200,
 				'width'			=>	300,

@@ -422,8 +422,15 @@ h3.epl-welcome-sub-heading {
 .column-listing {
 	
 }
-.column-property_thumb {
-	
+.column-property_thumb img {
+	width: 100%;
+	height: auto;
+}
+.column-property_thumb .attachment-thumbnail {
+	width: 100%;
+	height: auto;
+	max-width: 100px;
+	max-height: 100px;
 }
 .type_current {
 	font-weight:normal;
@@ -774,7 +781,8 @@ h3.epl-welcome-sub-heading {
 	.fixed .column-property_price,
 	.fixed .column-listing_id,
 	.fixed .column-geo,
-	.fixed .column-agent {
+	.fixed .column-agent,
+	.fixed .column-property_thumb {
 		display:none;
 	}
 	.epl-col,

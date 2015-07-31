@@ -1207,10 +1207,10 @@ function epl_admin_sidebar () {
 					'label'		=>	__('Image size', 'epl'),
 					'type'		=>	'radio',
 					'opts'		=>	array(
-						'admin-list-thumb'	=>	__('100 X 100', 'epl'),
+						'thumbnail'		=>	__('100 X 100', 'epl'),
 						'epl-image-medium-crop'	=>	__('300 X 200', 'epl'),
 					),
-					'default'	=>	'admin-list-thumb',
+					'default'	=>	'thumbnail',
 					'help'		=>	__('Size of the image shown in listing columns in admin area' , 'epl')
 				),
 				

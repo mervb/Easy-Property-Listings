@@ -72,20 +72,23 @@ function epl_admin_styles() {
 	if(!is_null($current_screen) && $current_screen->base != 'edit')
 		return; 
 		
-	$active_size = isset($epl_settings['epl_admin_thumb_size'])? $epl_settings['epl_admin_thumb_size'] : 'admin-list-thumb';
+	$active_size = isset($epl_settings['epl_admin_thumb_size'])? $epl_settings['epl_admin_thumb_size'] : 'thumbnail';
 	$sizes = array(
-				'admin-list-thumb'		=>	'100 X 100',
+				'thumbnail'		=>	'100 X 100',
 				'epl-image-medium-crop'		=>	'300 X 200',
 			);
 			
 	$width = current(explode(' X ',$sizes[$active_size])).'px';
-	?>
-	<style>
-		.column-property_thumb {
-			width:<?php echo $width; ?>;
-		}
-	</style>
-<?php	
+	
+	if ( $sizes[$active_size] != 'thumbnail' ) {
+		?>
+		<style>
+			.column-property_thumb {
+				width:<?php echo $width; ?>;
+			}
+		</style>
+		<?php
+	}	
 }
 
 add_action('admin_head','epl_admin_styles');

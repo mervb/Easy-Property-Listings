@@ -180,7 +180,7 @@ function epl_manage_listing_column_property_thumb_callback() {
 	global $epl_settings;
 	
 	if( function_exists('the_post_thumbnail') ) {
-		$thumb_size = isset($epl_settings['epl_admin_thumb_size'])? $epl_settings['epl_admin_thumb_size'] : 'admin-list-thumb';
+		$thumb_size = isset($epl_settings['epl_admin_thumb_size'])? $epl_settings['epl_admin_thumb_size'] : 'thumbnail';
 		the_post_thumbnail($thumb_size);
 	}
 }
