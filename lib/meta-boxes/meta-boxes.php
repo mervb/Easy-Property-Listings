@@ -264,7 +264,6 @@ function epl_meta_box_init() {
 							'type'		=>	'checkbox_single',
 							'opts'	=>	array(
 								'yes'	=>	__('Yes', 'epl'),
-								'no'	=>	__('No', 'epl')
 							),
 						),
 
@@ -625,6 +624,24 @@ function epl_meta_box_init() {
 						array(
 							'name'		=>	'property_shed',
 							'label'		=>	__('Shed', 'epl'),
+							'type'		=>	'checkbox_single',
+							'opts'	=>	array(
+								'yes'	=>	__('Yes', 'epl'),
+							),
+						),
+
+						array(
+							'name'		=>	'property_pool_above_ground',
+							'label'		=>	__('Above Ground Pool', 'epl'),
+							'type'		=>	'checkbox_single',
+							'opts'	=>	array(
+								'yes'	=>	__('Yes', 'epl'),
+							),
+						),
+
+						array(
+							'name'		=>	'property_pool_below_ground',
+							'label'		=>	__('Below Ground Pool', 'epl'),
 							'type'		=>	'checkbox_single',
 							'opts'	=>	array(
 								'yes'	=>	__('Yes', 'epl'),

@@ -722,16 +722,35 @@ class EPL_Property_Meta {
 
 	// property pool
 	public function get_property_pool($returntype = 'i') {
-		if($this->get_property_meta('property_pool') == '')
-			return;
+
+		$property_pool = $this->get_property_pool_type();
+
 		$label = apply_filters('epl_get_property_pool_label',__('Pool', 'epl') );
-		$property_pool = $this->get_property_meta('property_pool');
+
 		if( isset($property_pool) && ($property_pool == 1 || $property_pool == 'yes') ) {
 			$pool['i'] = '<span title="'.$label.'" class="icon pool"></span>';
 			$pool['l'] = '<li class="pool">'.$label.'</li>';
 
 			return apply_filters('epl_get_property_pool',$pool[$returntype]);
 		}
+	}
+
+	// Pool type
+	public function get_property_pool_type() {
+
+		$pool	= $this->get_property_meta('property_pool' , false );
+		if ( $pool == 1 || $pool == 'yes' ) {
+			return '1';
+		}
+		$pool	= $this->get_property_meta('property_pool_above_ground' , false );
+		if ( $pool == 1 || $pool == 'yes' ) {
+			return '1';
+		}
+		$pool	= $this->get_property_meta('property_pool_below_ground' , false );
+		if ( $pool == 1 || $pool == 'yes' ) {
+			return '1';
+		}
+		return;
 	}
 
 	// property security system
