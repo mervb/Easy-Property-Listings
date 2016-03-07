@@ -234,9 +234,7 @@ function epl_currency_formatted_amount($price) {
 	$price_format 			= apply_filters('epl_price_number_format','number');
 	$price_format_com_lease 	= apply_filters('epl_price_number_format_commercial_lease','number');
 	
-	if($price_format == 'decimal' && ( get_post_type() == 'rental' || is_post_type_archive('rental') ) )
-		return epl_currency_filter( epl_format_amount( $price , true ) );
-	elseif($price_format_com_lease == 'decimal' && ( get_post_type() == 'commercial' || is_post_type_archive('commercial') ) )
+	if($price_format == 'decimal' || $price_format_com_lease == 'decimal' )
 		return epl_currency_filter( epl_format_amount( $price , true ) );
 	else
 		return epl_currency_filter( epl_format_amount( $price , false ) );
@@ -726,14 +724,18 @@ function epl_admin_sidebar () {
 			break;
 			
 		case 'checkbox_single':
+
 			if(!empty($field['opts'])) {
 				foreach($field['opts'] as $k=>$v) {
 					$checked = '';
 					if(!empty($val)) {
-						if( $k == $val ) {
+						$checkbox_single_options = apply_filters('epl_checkbox_single_check_options', array(1,'yes',true));
+						if( $k == $val || in_array($k,$checkbox_single_options) ) {
 							$checked = 'checked="checked"';
 						}
 					}
+					if(count($field['opts']) == 1)
+						$v = $field['label'];
 					echo '<span class="epl-field-row"><input type="checkbox" name="'.$field['name'].'" id="'.$field['name'].'_'.$k.'" value="'.$k.'" '.$checked.' /> <label for="'.$field['name'].'_'.$k.'">'.__($v, 'epl').'</label></span>';
 				}
 			}
@@ -858,7 +860,8 @@ function epl_admin_sidebar () {
 		}
 		
 		if( !empty($val) ) {
-			echo '<iframe width="100%" height="200" frameborder="0" scrolling="no" src="//maps.google.com/?q='.stripslashes($val).'&output=embed&z=14" style="margin:5px 0 0 0;"></iframe>';
+			do_action('epl_admin_listing_map',stripslashes($val));
+			//echo '<iframe width="100%" height="200" frameborder="0" scrolling="no" src="//maps.google.com/?q='.stripslashes($val).'&output=embed&z=14" style="margin:5px 0 0 0;"></iframe>';
 		}
 	}
 	
@@ -1097,6 +1100,13 @@ function epl_admin_sidebar () {
 					'type'		=>	'select',
 					'opts'		=>	$opts_epl_features,
 					'default'	=>	2
+				),
+
+				array(
+					'name'		=>	'epl_video_width',
+					'label'		=>	__('Video width on single listings', 'epl'),
+					'type'		=>	'number',
+					'help'		=>	__('Width should be in pixels','epl')
 				)
 			)
 		),
